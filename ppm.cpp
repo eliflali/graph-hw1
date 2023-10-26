@@ -3,7 +3,6 @@
 
 void write_ppm(const char* filename, unsigned char* data, int width, int height)
 {
-    printf("been ppm6");
     FILE *outfile;
 
     if ((outfile = fopen(filename, "w")) == NULL) 

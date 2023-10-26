@@ -5,7 +5,6 @@
 
 void parser::Scene::loadFromXml(const std::string &filepath)
 {
-    printf("been parser8");
     tinyxml2::XMLDocument file;
     std::stringstream stream;
 
