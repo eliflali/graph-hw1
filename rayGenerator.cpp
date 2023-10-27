@@ -5,14 +5,9 @@
 using namespace parser;
 using namespace rayGenerator;
 using namespace mathFunctions;
-using namespace std;
 
 typedef unsigned char RGB[3];
-typedef struct Ray
-{
-    Vec3f origin;
-    Vec3f direction;
-} ray;
+
 
 
 Ray generateRay(const Camera &camera, int i, int j) {

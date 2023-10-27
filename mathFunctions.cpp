@@ -2,7 +2,6 @@
 #include "parser.h"
 
 using namespace parser;
-using namespace std;
 
 float vectorLength(Vec3f vec)
 {
