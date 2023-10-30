@@ -2,7 +2,6 @@
 #include "parser.h"
 #include "ppm.h"
 #include "rayGenerator.h"
-#include "rayGenerator.h"
 
 using namespace rayGenerator;
 using namespace parser;
@@ -50,7 +49,7 @@ int main(int argc, char* argv[])
         {
             for(int nx = 0; nx<width; nx++ )
             {
-                Ray ray = generateRay(camera, width, height);
+                Ray ray = rayGenerator::generateRay(camera, width, height);
 
             }
         }

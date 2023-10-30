@@ -11,7 +11,7 @@ namespace mathFunctions
 
     Vec3f determinant3(const Vec3f &vec1, const Vec3f &vec2);
     Vec3f crossProduct(const Vec3f &vec1, const Vec3f &vec2);
-    Vec3f dotProduct(const Vec3f &vec1, const Vec3f &vec2);
+    float dotProduct(const Vec3f &vec1, const Vec3f &vec2);
 
     Vec3f addVectors(const Vec3f &vec1, const Vec3f &vec2);
     Vec3f subtractVectors(const Vec3f &vec1, const Vec3f &vec2);

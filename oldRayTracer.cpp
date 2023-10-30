@@ -1,5 +1,5 @@
 #include <iostream>
-#include "parser.h"
+/*#include "parser.h"
 #include "ppm.h"
 
 typedef unsigned char RGB[3];
@@ -47,4 +47,4 @@ int main(int argc, char* argv[])
 
     write_ppm("test.ppm", image, width, height);
 
-}
+}*/
