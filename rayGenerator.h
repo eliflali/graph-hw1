@@ -10,6 +10,7 @@ namespace rayGenerator
     {
         Vec3f origin;
         Vec3f direction;
+        int depth;
     } ray;
 
     Vec3f computeM(const Camera &camera);

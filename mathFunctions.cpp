@@ -37,11 +37,11 @@ namespace mathFunctions
 
     Vec3f crossProduct(const Vec3f &vec1, const Vec3f &vec2)
     {
-        Vec3f determinant;
-        determinant.x = vec1.y*vec1.z - vec1.z*vec2.y;
-        determinant.y = vec1.z*vec2.x - vec1.x*vec2.z;
-        determinant.z = vec1.x*vec2.y - vec1.y*vec2.x;
-        return determinant;
+        Vec3f product;
+        product.x = vec1.y*vec1.z - vec1.z*vec2.y;
+        product.y = vec1.z*vec2.x - vec1.x*vec2.z;
+        product.z = vec1.x*vec2.y - vec1.y*vec2.x;
+        return product;
     }
 
     float dotProduct(const Vec3f &vec1, const Vec3f &vec2)
@@ -49,6 +49,12 @@ namespace mathFunctions
         float product;
         product = vec1.x*vec2.x + vec1.y*vec2.y + vec1.z*vec2.z;
         return product;
+    }
+
+    float computeDistance(const Vec3f &vec1, const Vec3f &vec2)
+    {
+        float distance = vectorLength(subtractVectors(vec1, vec2));
+        return distance;
     }
 
     Vec3f addVectors(const Vec3f &vec1, const Vec3f &vec2)
