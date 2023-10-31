@@ -6,7 +6,7 @@ using namespace parser;
 
 namespace mathFunctions
 {
-    float vectorLength(Vec3f vec)
+    float vectorLength(const Vec3f &vec)
     {
         float length = sqrt(pow(vec.x,2) + pow(vec.y,2) + pow(vec.z,2));
         return length;

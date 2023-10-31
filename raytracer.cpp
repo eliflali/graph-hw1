@@ -3,40 +3,25 @@
 #include "ppm.h"
 #include "rayGenerator.h"
 #include <algorithm>
+#include "computeColor.h"
 
 using namespace rayGenerator;
 using namespace parser;
+using namespace computeColor;
 
-Vec3i background_color;
-float shadow_ray_epsilon;
 int max_recursion_depth;
 std::vector<Camera> cameras;
-Vec3f ambient_light;
-std::vector<PointLight> point_lights;
-std::vector<Material> materials;
-std::vector<Vec3f> vertex_data;
-std::vector<Mesh> meshes;
-std::vector<Triangle> triangles;
-std::vector<Sphere> spheres;
 
 int main(int argc, char* argv[])
 {
 
+    std::cout<<"in main 18" <<std::endl;
     // Sample usage for reading an XML scene file
     parser::Scene scene;
     scene.loadFromXml(argv[1]);
 
-    background_color = scene.background_color;
-    shadow_ray_epsilon = scene.shadow_ray_epsilon;
     max_recursion_depth = scene.max_recursion_depth;
     cameras = scene.cameras;
-    ambient_light = scene.ambient_light;
-    point_lights = scene.point_lights;
-    materials = scene.materials;
-    vertex_data = scene.vertex_data;
-    meshes = scene.meshes;
-    triangles = scene.triangles;
-    spheres = scene.spheres;
 
     //for every camera angle, we must have a distinct ppm.
     for(int i = 0; i<cameras.size(); i++)
@@ -45,6 +30,8 @@ int main(int argc, char* argv[])
         int width = camera.image_width;
         int height = camera.image_height;
         unsigned char* image = new unsigned char [width * height * 3];
+
+        int pixel = 0;
         //for each pixel, we must calculate pixel color
         for(int ny= 0; ny<height; ny++)
         {
@@ -52,9 +39,25 @@ int main(int argc, char* argv[])
             {
                 Ray ray = rayGenerator::generateRay(camera, width, height);
                 ray.depth = 0;
-                //Vec3i color = computeColor(ray);
+                Vec3f color = computePixelColor(scene, camera, ray, max_recursion_depth);
+
+                if(color.x > 255)
+                    image[pixel] = 255;
+                else
+                    image[pixel] = round(color.x);
+
+                if(color.y > 255)
+                    image[pixel + 1] = 255;
+                else
+                    image[pixel + 1] = round(color.y);
+
+                if(color.z > 255)
+                    image[pixel + 2] = 255;
+                else
+                    image[pixel + 2] = round(color.z);
 
 
+                pixel += 3;
             }
         }
 

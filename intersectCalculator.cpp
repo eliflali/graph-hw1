@@ -2,6 +2,7 @@
 #include "mathFunctions.h"
 #include "rayGenerator.h"
 #include "intersectCalculator.h"
+#include <iostream>
 #include <vector>
 
 using namespace parser;
@@ -17,7 +18,7 @@ namespace intersectCalculator
         bool isHit = false;
         float firstHit = 3.40282E38;
         HitPoint currentHit = {0,0,0,0.0F};
-
+        //std::cout<<"closestHit 21"<<std::endl;
         /*
         1 sphere 2 tri 3 mesh
         Vec3f m = add(ray.o,multS(scene.vertex_data[sphere.center_vertex_id-1],-1));
@@ -25,11 +26,13 @@ namespace intersectCalculator
         */
         for(int i = 0; i < sphereCount; i++){
             //sphere case
-            Vec3f originToCenter  = subtractVectors(scene.vertex_data[scene.spheres[i].center_vertex_id -1], ray.origin); //indexing starts from 1 in vertex data but this issue might be solved
-            hitTime = quadraticDelta(scene.spheres[i],originToCenter,ray);
+            Vec3f originToCenter  = subtractVectors(scene.vertex_data[(scene.spheres[i].center_vertex_id) -1], ray.origin); //indexing starts from 1 in vertex data but this issue might be solved
+            hitTime = quadraticDelta(scene.spheres[i],originToCenter,ray); // t
             if( (0 < hitTime) && (hitTime < firstHit ) ){
+                std::cout<<"closestHit sphere 32"<<std::endl;
                 firstHit = hitTime;
-                currentHit = {i , 1 , 0 , hitTime};
+                Vec3f intersectionPoint = addVectors(ray.origin, multiplyVector(ray.direction, hitTime)); // P = o + t x d
+                currentHit = {i , 1 , 0 , hitTime, intersectionPoint};
                 isHit = true;
 
             }
@@ -49,7 +52,11 @@ namespace intersectCalculator
 
             if((beta + gamma) <= 1 && beta >= 0 && gamma >= 0 ){
                 if(time > 0 &&  time < hitTime){
-                    currentHit = {i,2,0,hitTime};
+                    float alpha = 1 - beta - gamma;
+                    Vec3f intersectionPoint = addVectors(addVectors(multiplyVector(vertex0, alpha),
+                                                                    multiplyVector(vertex1, beta)),
+                                                                    multiplyVector(vertex2, gamma)); //P = alpha*v0 + beta*v1 + gamma*v2
+                    currentHit = {i,2,0,hitTime, intersectionPoint};
                     isHit = true;
                 }
             }
@@ -71,13 +78,18 @@ namespace intersectCalculator
 
                 if((beta + gamma) <= 1 && beta >= 0 && gamma >= 0 ){
                     if(time > 0 &&  time < hitTime){
-                        currentHit = {i,3,j,hitTime};
+                        float alpha = 1 - beta - gamma;
+                        Vec3f intersectionPoint = addVectors(addVectors(multiplyVector(vertex0, alpha),
+                                                                        multiplyVector(vertex1, beta)),
+                                                                        multiplyVector(vertex2, gamma)); //P = alpha*v0 + beta*v1 + gamma*v2
+                        currentHit = {i,3,j,hitTime, intersectionPoint};
                         isHit = true;
                     }
                 }
             }
         }
         hitFound = currentHit;
+        //std::cout<<"closestHit 91"<<std::endl;
         return isHit;
     }
 }
