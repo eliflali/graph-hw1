@@ -3,7 +3,6 @@
 #include "mathFunctions.h"
 #include "rayGenerator.h"
 #include <limits>
-#include <algorithm>
 
 using namespace parser;
 
@@ -111,7 +110,8 @@ namespace mathFunctions
             } else if (t2 > 0) {
                 return t2;
             } else {
-                return std::numeric_limits<float>::infinity();
+                return -35.0;
+                //return std::numeric_limits<float>::infinity();
             }
         }
     }

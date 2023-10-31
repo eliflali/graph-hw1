@@ -13,12 +13,12 @@ using namespace std;
 
 namespace intersectCalculator
 {
-    bool closestHit(Ray ray, HitPoint &hitFound , Scene scene){
+    bool closestHit(Ray ray, HitPoint &hitFound , const Scene &scene){
         int sphereCount = scene.spheres.size() , meshCount = scene.meshes.size() , triangleCount = scene.triangles.size();
         bool isHit = false;
         float firstHit = 3.40282E38;
+        float hitTime;
         HitPoint currentHit = {0,0,0,0.0F};
-        float hitTime = 3.40282E38 ;
         //std::cout<<"closestHit 21"<<std::endl;
         /*
         1 sphere 2 tri 3 mesh
@@ -35,7 +35,12 @@ namespace intersectCalculator
                 firstHit = hitTime;
                 Vec3f intersectionPoint = addVectors(ray.origin,
                                                      multiplyVector(ray.direction, hitTime)); // P = o + t x d
-                currentHit = {i , 1 , 0 , hitTime, intersectionPoint};
+                currentHit.objectID = i;
+                currentHit.objectType = 1;
+                currentHit.faceID = 0;
+                currentHit.time =  hitTime;
+                currentHit.point = intersectionPoint;
+
                 std::cout<<"hitSphere!!"<<std::endl;
                 isHit = true;
 

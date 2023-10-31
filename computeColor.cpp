@@ -124,12 +124,14 @@ namespace computeColor
         if(isHit)
         {
             //std::cout<<"hit"<<std::endl;
+            int objectType = hitPoint.objectType;
             int objectID = hitPoint.objectID;
             Vec3f ambientLight = scene.ambient_light;
-            switch (objectID)
+            switch (objectType)
             {
                 case 1: // 1->sphere 2-> triangle 3-> mesh
                 {
+                    std::cout<<"spherehit"<<std::endl;
                     Sphere sphere = scene.spheres[objectID];
                     Vec3f ambientCoeff = scene.materials[sphere.material_id-1].ambient;
                     Vec3f diffuseCoeff = scene.materials[sphere.material_id-1].diffuse;
@@ -156,10 +158,58 @@ namespace computeColor
                 }
                 case 2: // triangle
                 {
+                    //std::cout<<"triangle"<<std::endl;
+                    Triangle triangle = scene.triangles[objectID];
+                    Vec3f ambientCoeff = scene.materials[triangle.material_id-1].ambient;
+                    Vec3f diffuseCoeff = scene.materials[triangle.material_id-1].diffuse;
+                    Vec3f specularCoeff = scene.materials[triangle.material_id-1].specular;
+                    float phongExponent = scene.materials[triangle.material_id-1].phong_exponent;
+                    pixelColor = computeAmbient(ambientCoeff,ambientLight);
+                    for(const auto &light : point_lights)
+                    {
+                        Vec3f normal = computeTriangleNormal(scene.vertex_data[triangle.indices.v0_id-1],
+                                                             scene.vertex_data[triangle.indices.v1_id-1], // it is starting from 1
+                                                             scene.vertex_data[triangle.indices.v2_id-1]);
+                        bool isShadow = checkShadow(light, hitPoint.point, scene, normal);
+                        if(!isShadow)
+                        {
+                            Vec3f diffuse = computeDiffuse(diffuseCoeff,light,normal,hitPoint.point);
+                            Vec3f specular = computeSpecular(specularCoeff,phongExponent,light,ray,normal,hitPoint.point);
+                            pixelColor.x = pixelColor.x + diffuse.x + specular.x;
+                            pixelColor.y = pixelColor.y + diffuse.y + specular.y;
+                            pixelColor.z = pixelColor.z + diffuse.z + specular.z;
+                        }
+
+                    }
                     break;
                 }
                 case 3: // mesh
                 {
+                    //std::cout<<"mesh"<<std::endl;
+                    Mesh mesh = scene.meshes[objectID];
+                    Vec3f ambientCoeff = scene.materials[mesh.material_id-1].ambient;
+                    Vec3f diffuseCoeff = scene.materials[mesh.material_id-1].diffuse;
+                    Vec3f specularCoeff = scene.materials[mesh.material_id-1].specular;
+                    float phongExponent = scene.materials[mesh.material_id-1].phong_exponent;
+                    pixelColor = computeAmbient(ambientCoeff,ambientLight);
+                    for(const auto &light : point_lights)
+                    {
+                        for(const auto &mesh : mesh.faces)
+                        {
+                            Vec3f normal = computeTriangleNormal(scene.vertex_data[mesh.v0_id-1],
+                                                                 scene.vertex_data[mesh.v1_id-1], // it is starting from 1
+                                                                 scene.vertex_data[mesh.v2_id-1]);
+                            bool isShadow = checkShadow(light, hitPoint.point, scene, normal);
+                            if(!isShadow)
+                            {
+                                Vec3f diffuse = computeDiffuse(diffuseCoeff,light,normal,hitPoint.point);
+                                Vec3f specular = computeSpecular(specularCoeff,phongExponent,light,ray,normal,hitPoint.point);
+                                pixelColor.x = pixelColor.x + diffuse.x + specular.x;
+                                pixelColor.y = pixelColor.y + diffuse.y + specular.y;
+                                pixelColor.z = pixelColor.z + diffuse.z + specular.z;
+                            }
+                        }
+                    }
                     break;
                 }
                 default:
