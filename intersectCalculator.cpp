@@ -27,7 +27,7 @@ namespace intersectCalculator
         */
         for(int i = 0; i < sphereCount; i++){
             //sphere case
-            Vec3f originToCenter  = subtractVectors(scene.vertex_data[(scene.spheres[i].center_vertex_id) -1], ray.origin); //indexing starts from 1 in vertex data but this issue might be solved
+            Vec3f originToCenter  = subtractVectors(ray.origin,scene.vertex_data[(scene.spheres[i].center_vertex_id) -1] ); //indexing starts from 1 in vertex data but this issue might be solved
             hitTime = quadraticDelta(scene.spheres[i],originToCenter,ray); // t
             //std::cout<<"closestHit sphere 31"<<scene.spheres[i].center_vertex_id<<std::endl;
             if( (0 < hitTime) && (hitTime < firstHit ) ){
