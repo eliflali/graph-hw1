@@ -15,11 +15,12 @@ std::vector<Camera> cameras;
 int main(int argc, char* argv[])
 {
 
-    std::cout<<"in main 18" <<std::endl;
+    //std::cout<<"in main 18" <<std::endl;
     // Sample usage for reading an XML scene file
     parser::Scene scene;
+    //std::cout<<"in main 21" <<std::endl;
     scene.loadFromXml(argv[1]);
-
+   //std::cout<<"in main 23" <<std::endl;
     max_recursion_depth = scene.max_recursion_depth;
     cameras = scene.cameras;
 
@@ -37,7 +38,8 @@ int main(int argc, char* argv[])
         {
             for(int nx = 0; nx<width; nx++ )
             {
-                Ray ray = rayGenerator::generateRay(camera, width, height);
+                //std::cout<<"in main 40" <<std::endl;
+                Ray ray = rayGenerator::generateRay(camera, ny, nx);
                 ray.depth = 0;
                 Vec3f color = computePixelColor(scene, camera, ray, max_recursion_depth);
 
@@ -58,6 +60,7 @@ int main(int argc, char* argv[])
 
 
                 pixel += 3;
+                //std::cout<<ray.direction.x<< ray.direction.y<< ray.direction.z<<std::endl;
             }
         }
 

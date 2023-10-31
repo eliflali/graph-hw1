@@ -103,7 +103,7 @@ namespace computeColor
         shadowRay.origin = addVectors(pointOnSurface, multiplyVector(normal, epsilon)); // x + n*epsilon
 
         HitPoint hitPoint;
-        if(closestHit(0,shadowRay,hitPoint, scene))
+        if(closestHit(std::numeric_limits<float>::max(),shadowRay,hitPoint, scene))
         {
             if(hitPoint.time < length) // t<|wi|
             {
@@ -116,11 +116,11 @@ namespace computeColor
 
     Vec3f computePixelColor(Scene scene, Camera camera, Ray ray, int maxRecursion)
     {
-        std::cout<<"computeColor 119"<<std::endl;
+        //std::cout<<"computeColor 119"<<std::endl;
         Vec3f pixelColor;
         HitPoint hitPoint;
         std::vector<PointLight> point_lights = scene.point_lights;
-        bool isHit = closestHit(0, ray, hitPoint, scene);
+        bool isHit = closestHit(std::numeric_limits<float>::max(), ray, hitPoint, scene);
         if(isHit)
         {
             std::cout<<"hit"<<std::endl;
@@ -131,15 +131,15 @@ namespace computeColor
                 case 1: // 1->sphere 2-> triangle 3-> mesh
                 {
                     Sphere sphere = scene.spheres[objectID];
-                    Vec3f ambientCoeff = scene.materials[sphere.material_id].ambient;
-                    Vec3f diffuseCoeff = scene.materials[sphere.material_id].diffuse;
-                    Vec3f specularCoeff = scene.materials[sphere.material_id].specular;
-                    float phongExponent = scene.materials[sphere.material_id].phong_exponent;
+                    Vec3f ambientCoeff = scene.materials[sphere.material_id-1].ambient;
+                    Vec3f diffuseCoeff = scene.materials[sphere.material_id-1].diffuse;
+                    Vec3f specularCoeff = scene.materials[sphere.material_id-1].specular;
+                    float phongExponent = scene.materials[sphere.material_id-1].phong_exponent;
                     pixelColor = computeAmbient(ambientCoeff,ambientLight);
                     for(const auto &light : point_lights)
                     {
                         Vec3f normal = computeSphereNormal(hitPoint.point,
-                                                           scene.vertex_data[sphere.center_vertex_id-1], // is it starting from 1?
+                                                           scene.vertex_data[sphere.center_vertex_id-1], // it is starting from 1
                                                            sphere.radius);
                         bool isShadow = checkShadow(light, hitPoint.point, scene, normal);
                         if(!isShadow)
@@ -174,7 +174,7 @@ namespace computeColor
             pixelColor.y = scene.background_color.y;
             pixelColor.z = scene.background_color.z;
         }
-        std::cout<<"computeColor 178"<<std::endl;
+        //std::cout<<"computeColor 178"<<std::endl;
         return pixelColor;
     }
 }

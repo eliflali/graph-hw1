@@ -16,6 +16,7 @@ namespace computeColor {
     Vec3f computeSpecular(Vec3f specularCoeff, float phongExponent, const PointLight &light,const Ray &ray, const Vec3f &normal, const Vec3f &wi, const Vec3f &pointOnSurface);
     Vec3f computeDiffuse(Vec3f diffuseCoeff, const PointLight &light, const Vec3f &normal, const Vec3f &pointOnSurface);
     Vec3f computePixelColor(Scene scene, Camera camera, Ray ray, int maxRecursion);
+    bool checkShadow(const PointLight &light, const Vec3f &pointOnSurface, const Scene &scene, const Vec3f &normal);
 
 };
 
