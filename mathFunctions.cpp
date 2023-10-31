@@ -1,7 +1,7 @@
 #include <cmath>
 #include "parser.h"
 #include "mathFunctions.h"
-
+#include "rayGenerator.h"
 using namespace parser;
 
 namespace mathFunctions
@@ -26,11 +26,13 @@ namespace mathFunctions
 
     float determinant3(const Vec3f &vec1, const Vec3f &vec2, const Vec3f &vec3)
     {
-        float determinant;
-        determinant = vec1.x * (vec2.y*vec3.z - vec3.y*vec2.z)
-                      + vec1.y * (vec3.x*vec2.z - vec2.x*vec3.z)
-                      + vec1.z * (vec2.x*vec3.y - vec2.y*vec3.x);
-        return determinant;
+        /*Vec3f determinant;
+        determinant.x = vec1.y*vec1.z - vec1.z*vec2.y;
+        determinant.y = vec1.z*vec2.x - vec1.x*vec2.z;
+        determinant.z = vec1.x*vec2.y - vec1.y*vec2.x;
+        return determinant;*/
+        // -x2 y1 z + x1 y2 z + x2 y z1 - x y2 z1 - x1 y z2 + x y1 z2
+        return (-(vec3.x) * vec2.y * vec1.z) + (vec2.x * vec3.y * vec1.z ) + (vec3.x * vec1.y * vec2.z ) - (vec1.x * vec3.y * vec2.z ) - (vec2.x * vec1.y * vec3.z) + (vec1.x * vec2.y* vec3.z);
     }
 
     Vec3f crossProduct(const Vec3f &vec1, const Vec3f &vec2)
@@ -71,5 +73,35 @@ namespace mathFunctions
         total.y = vec1.y-vec2.y;
         total.z = vec1.z-vec2.z;
         return total;
+    }
+    Vec3f multiplyVector(const Vec3f &vec, float val){
+        Vec3f newVec  = {vec.x * val, vec.y * val , vec.z * val};
+        return newVec;
+    }
+    /*float A = dotProd(ray.d,ray.d);
+    float B = 2*dotProd(ray.d,m);
+    float C = dotProd(m,m) - sphere.radius*sphere.radius;
+
+    float delta = B*B - 4*A*C;
+
+    if (delta < 0)
+        return -1.0F;
+    else
+        return (-B - sqrt(delta))/(2*A);
+}*/
+    float quadraticDelta(Sphere sphere, const Vec3f originToCenter, rayGenerator::Ray ray){ //solves the quadratic equation for sphere
+        
+        float a = dotProduct(ray.direction, ray.direction);
+        float b = 2 * dotProduct(ray.direction,originToCenter);
+        float c  = dotProduct(originToCenter,originToCenter) - (sphere.radius * sphere.radius);
+        float delta = (b*b) - (4*a*c);//formula for quadratic equations
+        
+        if(delta < 0 ){//no real solution
+            return -35.0F; //just to state non-positive solution (TAM 35)
+        }
+        else{
+            return (float)(-b - sqrt(delta))/(2*a);
+        }
+         
     }
 }
