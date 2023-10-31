@@ -99,19 +99,27 @@ namespace mathFunctions
 
         if (delta < 0) {
             return std::numeric_limits<float>::infinity();
-        } else {
+        }
+        else
+        {
             float t1 = (-b - sqrt(delta)) / (2 * a);
             float t2 = (-b + sqrt(delta)) / (2 * a);
 
-            if (t1 > 0 && t2 > 0) {
+            if (t1 > 0 && t2 > 0)
+            {
                 return std::min(t1, t2);
-            } else if (t1 > 0) {
+            }
+            else if (t1 > 0)
+            {
                 return t1;
-            } else if (t2 > 0) {
+            }
+            else if (t2 > 0)
+            {
                 return t2;
-            } else {
-                return -35.0;
-                //return std::numeric_limits<float>::infinity();
+            }
+            else
+            {
+                return std::numeric_limits<float>::infinity();
             }
         }
     }

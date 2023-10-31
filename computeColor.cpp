@@ -116,14 +116,12 @@ namespace computeColor
 
     Vec3f computePixelColor(Scene scene, Camera camera, Ray ray, int maxRecursion)
     {
-        //std::cout<<"computeColor 119"<<std::endl;
         Vec3f pixelColor;
         HitPoint hitPoint;
         std::vector<PointLight> point_lights = scene.point_lights;
         bool isHit = closestHit(ray, hitPoint, scene);
         if(isHit)
         {
-            //std::cout<<"hit"<<std::endl;
             int objectType = hitPoint.objectType;
             int objectID = hitPoint.objectID;
             Vec3f ambientLight = scene.ambient_light;
@@ -131,7 +129,6 @@ namespace computeColor
             {
                 case 1: // 1->sphere 2-> triangle 3-> mesh
                 {
-                    std::cout<<"spherehit"<<std::endl;
                     Sphere sphere = scene.spheres[objectID];
                     Vec3f ambientCoeff = scene.materials[sphere.material_id-1].ambient;
                     Vec3f diffuseCoeff = scene.materials[sphere.material_id-1].diffuse;
@@ -158,7 +155,6 @@ namespace computeColor
                 }
                 case 2: // triangle
                 {
-                    //std::cout<<"triangle"<<std::endl;
                     Triangle triangle = scene.triangles[objectID];
                     Vec3f ambientCoeff = scene.materials[triangle.material_id-1].ambient;
                     Vec3f diffuseCoeff = scene.materials[triangle.material_id-1].diffuse;
@@ -185,7 +181,6 @@ namespace computeColor
                 }
                 case 3: // mesh
                 {
-                    //std::cout<<"mesh"<<std::endl;
                     Mesh mesh = scene.meshes[objectID];
                     Vec3f ambientCoeff = scene.materials[mesh.material_id-1].ambient;
                     Vec3f diffuseCoeff = scene.materials[mesh.material_id-1].diffuse;
@@ -224,7 +219,6 @@ namespace computeColor
             pixelColor.y = scene.background_color.y;
             pixelColor.z = scene.background_color.z;
         }
-        //std::cout<<"computeColor 178"<<std::endl;
         return pixelColor;
     }
 }

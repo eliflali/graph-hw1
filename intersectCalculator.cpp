@@ -19,7 +19,6 @@ namespace intersectCalculator
         float firstHit = 3.40282E38;
         float hitTime;
         HitPoint currentHit = {0,0,0,0.0F};
-        //std::cout<<"closestHit 21"<<std::endl;
         /*
         1 sphere 2 tri 3 mesh
         Vec3f m = add(ray.o,multS(scene.vertex_data[sphere.center_vertex_id-1],-1));
@@ -29,9 +28,7 @@ namespace intersectCalculator
             //sphere case
             Vec3f originToCenter  = subtractVectors(ray.origin,scene.vertex_data[(scene.spheres[i].center_vertex_id) -1] ); //indexing starts from 1 in vertex data but this issue might be solved
             hitTime = quadraticDelta(scene.spheres[i],originToCenter,ray); // t
-            //std::cout<<"closestHit sphere 31"<<scene.spheres[i].center_vertex_id<<std::endl;
             if( (0 < hitTime) && (hitTime < firstHit ) ){
-                std::cout<<"closestHit sphere 32"<<std::endl;
                 firstHit = hitTime;
                 Vec3f intersectionPoint = addVectors(ray.origin,
                                                      multiplyVector(ray.direction, hitTime)); // P = o + t x d
@@ -40,8 +37,6 @@ namespace intersectCalculator
                 currentHit.faceID = 0;
                 currentHit.time =  hitTime;
                 currentHit.point = intersectionPoint;
-
-                std::cout<<"hitSphere!!"<<std::endl;
                 isHit = true;
 
             }
@@ -98,7 +93,6 @@ namespace intersectCalculator
             }
         }
         hitFound = currentHit;
-        //std::cout<<"closestHit 91"<<std::endl;
         return isHit;
     }
 }

@@ -13,7 +13,6 @@ namespace rayGenerator
 {
     Ray generateRay(const Camera &camera, int i, int j)
     {
-        // Compute screen-space coordinates
         float su = (camera.near_plane.y - camera.near_plane.x) * (j + 0.5) / camera.image_width;
         float sv = (camera.near_plane.w - camera.near_plane.z) * (i + 0.5) / camera.image_height;
 
