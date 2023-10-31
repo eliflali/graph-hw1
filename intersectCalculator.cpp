@@ -13,11 +13,12 @@ using namespace std;
 
 namespace intersectCalculator
 {
-    bool closestHit(float hitTime, Ray ray, HitPoint &hitFound , Scene scene){
+    bool closestHit(Ray ray, HitPoint &hitFound , Scene scene){
         int sphereCount = scene.spheres.size() , meshCount = scene.meshes.size() , triangleCount = scene.triangles.size();
         bool isHit = false;
         float firstHit = 3.40282E38;
         HitPoint currentHit = {0,0,0,0.0F};
+        float hitTime = 3.40282E38 ;
         //std::cout<<"closestHit 21"<<std::endl;
         /*
         1 sphere 2 tri 3 mesh
@@ -28,7 +29,7 @@ namespace intersectCalculator
             //sphere case
             Vec3f originToCenter  = subtractVectors(scene.vertex_data[(scene.spheres[i].center_vertex_id) -1], ray.origin); //indexing starts from 1 in vertex data but this issue might be solved
             hitTime = quadraticDelta(scene.spheres[i],originToCenter,ray); // t
-            std::cout<<"closestHit sphere 31"<<scene.spheres[i].center_vertex_id<<std::endl;
+            //std::cout<<"closestHit sphere 31"<<scene.spheres[i].center_vertex_id<<std::endl;
             if( (0 < hitTime) && (hitTime < firstHit ) ){
                 std::cout<<"closestHit sphere 32"<<std::endl;
                 firstHit = hitTime;

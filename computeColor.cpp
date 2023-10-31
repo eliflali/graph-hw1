@@ -103,7 +103,7 @@ namespace computeColor
         shadowRay.origin = addVectors(pointOnSurface, multiplyVector(normal, epsilon)); // x + n*epsilon
 
         HitPoint hitPoint;
-        if(closestHit(std::numeric_limits<float>::max(),shadowRay,hitPoint, scene))
+        if(closestHit(shadowRay,hitPoint, scene))
         {
             if(hitPoint.time < length) // t<|wi|
             {
@@ -120,10 +120,10 @@ namespace computeColor
         Vec3f pixelColor;
         HitPoint hitPoint;
         std::vector<PointLight> point_lights = scene.point_lights;
-        bool isHit = closestHit(std::numeric_limits<float>::max(), ray, hitPoint, scene);
+        bool isHit = closestHit(ray, hitPoint, scene);
         if(isHit)
         {
-            std::cout<<"hit"<<std::endl;
+            //std::cout<<"hit"<<std::endl;
             int objectID = hitPoint.objectID;
             Vec3f ambientLight = scene.ambient_light;
             switch (objectID)

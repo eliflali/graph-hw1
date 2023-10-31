@@ -2,6 +2,9 @@
 #include "parser.h"
 #include "mathFunctions.h"
 #include "rayGenerator.h"
+#include <limits>
+#include <algorithm>
+
 using namespace parser;
 
 namespace mathFunctions
@@ -89,19 +92,28 @@ namespace mathFunctions
     else
         return (-B - sqrt(delta))/(2*A);
 }*/
-    float quadraticDelta(Sphere sphere, const Vec3f originToCenter, rayGenerator::Ray ray){ //solves the quadratic equation for sphere
-        
+    float quadraticDelta(Sphere sphere, const Vec3f originToCenter, rayGenerator::Ray ray) {
         float a = dotProduct(ray.direction, ray.direction);
-        float b = 2 * dotProduct(ray.direction,originToCenter);
-        float c  = dotProduct(originToCenter,originToCenter) - (sphere.radius * sphere.radius);
-        float delta = (b*b) - (4*a*c);//formula for quadratic equations
-        
-        if(delta < 0 ){//no real solution
-            return -35.0F; //just to state non-positive solution (TAM 35)
+        float b = 2 * dotProduct(ray.direction, originToCenter);
+        float c = dotProduct(originToCenter, originToCenter) - (sphere.radius * sphere.radius);
+        float delta = (b * b) - (4 * a * c);
+
+        if (delta < 0) {
+            return std::numeric_limits<float>::infinity();
+        } else {
+            float t1 = (-b - sqrt(delta)) / (2 * a);
+            float t2 = (-b + sqrt(delta)) / (2 * a);
+
+            if (t1 > 0 && t2 > 0) {
+                return std::min(t1, t2);
+            } else if (t1 > 0) {
+                return t1;
+            } else if (t2 > 0) {
+                return t2;
+            } else {
+                return std::numeric_limits<float>::infinity();
+            }
         }
-        else{
-            return (float)(-b - sqrt(delta))/(2*a);
-        }
-         
     }
+
 }
