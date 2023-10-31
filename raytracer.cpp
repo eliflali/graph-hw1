@@ -2,6 +2,7 @@
 #include "parser.h"
 #include "ppm.h"
 #include "rayGenerator.h"
+#include <algorithm>
 
 using namespace rayGenerator;
 using namespace parser;
@@ -50,6 +51,9 @@ int main(int argc, char* argv[])
             for(int nx = 0; nx<width; nx++ )
             {
                 Ray ray = rayGenerator::generateRay(camera, width, height);
+                ray.depth = 0;
+                //Vec3i color = computeColor(ray);
+
 
             }
         }
