@@ -13,10 +13,10 @@ namespace computeColor
     Vec3f computeSphereNormal(const Vec3f &p, const Vec3f &c, const float &r)
     {
         Vec3f n = subtractVectors(p, c); // (p - c)
-        n.x = n.x/r;
+        /*n.x = n.x/r;
         n.y = n.y/r;
-        n.z = n.z/r;
-        return n;
+        n.z = n.z/r;*/
+        return normalize(n);
     }
 
     Vec3f computeTriangleNormal(const Vec3f &a, const Vec3f &b, const Vec3f &c) // can be used for meshes
@@ -30,7 +30,7 @@ namespace computeColor
 
     Vec3f computeWi(const Vec3f &pointOnSurface, const Vec3f &lightPosition)  //point on surface is hit point
     {
-        Vec3f wi = normalize(subtractVectors(lightPosition, pointOnSurface));
+        Vec3f wi = normalize(subtractVectors(lightPosition,pointOnSurface));
         return wi;
     }
 
@@ -49,7 +49,7 @@ namespace computeColor
     Vec3f computeHalfVector(const Vec3f &wi, const Vec3f &wo)
     {
         Vec3f halfVector;
-        halfVector = normalize(addVectors(wi,wo));
+        halfVector = normalize(addVectors(wi,normalize(wo)));
         return halfVector;
     }
 
@@ -66,10 +66,16 @@ namespace computeColor
     {
         Vec3f specular;
         Vec3f wi = computeWi(pointOnSurface, light.position);
-        Vec3f halfVector = computeHalfVector(wi, ray.direction);
+        Vec3f wo= normalize(subtractVectors(ray.origin,pointOnSurface));
+        Vec3f halfVector = computeHalfVector(wi, wo);
         Vec3f irradiance = computeIrradiance(light.intensity, pointOnSurface, light.position);
         float cosalpha = std::max(0.0f, dotProduct(normal, halfVector)) ;
+        if(cosalpha>1)
+        {
+            cosalpha = 1;
+        }
         float cosalphaPow = pow(cosalpha, phongExponent);
+        std::cout<< cosalphaPow<<std::endl;
         specular.x = specularCoeff.x * cosalphaPow * irradiance.x;
         specular.y = specularCoeff.y * cosalphaPow * irradiance.y;
         specular.z = specularCoeff.z * cosalphaPow * irradiance.z;
@@ -145,9 +151,8 @@ namespace computeColor
                         {
                             Vec3f diffuse = computeDiffuse(diffuseCoeff,light,normal,hitPoint.point);
                             Vec3f specular = computeSpecular(specularCoeff,phongExponent,light,ray,normal,hitPoint.point);
-                            pixelColor.x = pixelColor.x + diffuse.x + specular.x;
-                            pixelColor.y = pixelColor.y + diffuse.y + specular.y;
-                            pixelColor.z = pixelColor.z + diffuse.z + specular.z;
+                            pixelColor = addVectors(pixelColor, diffuse);
+                            pixelColor = addVectors(pixelColor, specular);
                         }
 
                     }
