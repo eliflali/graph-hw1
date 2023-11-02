@@ -12,6 +12,12 @@ using namespace computeColor;
 int max_recursion_depth;
 std::vector<Camera> cameras;
 
+float clamp(float value)
+{
+    float bounded = value > 255 ? 255 : round(value);
+    return bounded;
+}
+
 int main(int argc, char* argv[])
 {
     // Sample usage for reading an XML scene file
@@ -37,23 +43,9 @@ int main(int argc, char* argv[])
                 Ray ray = rayGenerator::generateRay(camera, ny, nx);
                 ray.depth = 0;
                 Vec3f color = computePixelColor(scene, camera, ray, max_recursion_depth);
-
-                if(color.x > 255)
-                    image[pixel] = 255;
-                else
-                    image[pixel] = round(color.x);
-
-                if(color.y > 255)
-                    image[pixel + 1] = 255;
-                else
-                    image[pixel + 1] = round(color.y);
-
-                if(color.z > 255)
-                    image[pixel + 2] = 255;
-                else
-                    image[pixel + 2] = round(color.z);
-
-
+                image[pixel] = clamp(color.x);
+                image[pixel+1] = clamp(color.y);
+                image[pixel+2] = clamp(color.z);
                 pixel += 3;
             }
         }

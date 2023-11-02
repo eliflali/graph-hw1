@@ -13,10 +13,10 @@ namespace computeColor
     Vec3f computeSphereNormal(const Vec3f &p, const Vec3f &c, const float &r)
     {
         Vec3f n = subtractVectors(p, c); // (p - c)
-        /*n.x = n.x/r;
+        n.x = n.x/r;
         n.y = n.y/r;
-        n.z = n.z/r;*/
-        return normalize(n);
+        n.z = n.z/r;
+        return n;
     }
 
     Vec3f computeTriangleNormal(const Vec3f &a, const Vec3f &b, const Vec3f &c) // can be used for meshes
@@ -75,7 +75,6 @@ namespace computeColor
             cosalpha = 1;
         }
         float cosalphaPow = pow(cosalpha, phongExponent);
-        std::cout<< cosalphaPow<<std::endl;
         specular.x = specularCoeff.x * cosalphaPow * irradiance.x;
         specular.y = specularCoeff.y * cosalphaPow * irradiance.y;
         specular.z = specularCoeff.z * cosalphaPow * irradiance.z;
