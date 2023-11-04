@@ -34,6 +34,12 @@ namespace computeColor
         return wi;
     }
 
+    Vec3f computeWo(const Vec3f &x, const Vec3f &pointOnSurface)
+    {
+        Vec3f wo= normalize(subtractVectors(x,pointOnSurface));
+        return wo;
+    }
+
     Vec3f computeIrradiance(const Vec3f &intensity, const Vec3f &pointOnSurface, const Vec3f &lightPosition) // I(intensity)/r^2
     {
         Vec3f irradiance;
@@ -66,7 +72,7 @@ namespace computeColor
     {
         Vec3f specular;
         Vec3f wi = computeWi(pointOnSurface, light.position);
-        Vec3f wo= normalize(subtractVectors(ray.origin,pointOnSurface));
+        Vec3f wo= computeWo(ray.origin,pointOnSurface);
         Vec3f halfVector = computeHalfVector(wi, wo);
         Vec3f irradiance = computeIrradiance(light.intensity, pointOnSurface, light.position);
         float cosalpha = std::max(0.0f, dotProduct(normal, halfVector)) ;
@@ -119,6 +125,28 @@ namespace computeColor
         return isShadow;
     }
 
+    bool isReflective(Material material)
+    {
+        bool reflective;
+
+        reflective = material.is_mirror ? true : false;
+
+        return reflective;
+    }
+
+    Ray computeReflectionRay(const Ray &ray, const Vec3f &n, const Vec3f &pointOnSurface, const float &shadowEpsilon)
+    {
+        //w_r = -w_o + 2*n*costheta = -w_o + 2*n(dotproduct(n.w_o))
+        //k_m*L_i(x,w_r)
+        Vec3f wo= computeWo(ray.origin,pointOnSurface);
+        Ray reflectionRay;
+        float dotpNWo = dotProduct(wo,n);
+        Vec3f multiplied = multiplyVector(n, 2*dotpNWo);
+        reflectionRay.direction = normalize(subtractVectors(multiplied, wo));
+        reflectionRay.origin = addVectors(pointOnSurface, multiplyVector(n, shadowEpsilon));
+        return reflectionRay;
+    }
+
     Vec3f computePixelColor(Scene scene, Camera camera, Ray ray, int maxRecursion)
     {
         Vec3f pixelColor;
@@ -135,16 +163,20 @@ namespace computeColor
                 case 1: // 1->sphere 2-> triangle 3-> mesh
                 {
                     Sphere sphere = scene.spheres[objectID];
-                    Vec3f ambientCoeff = scene.materials[sphere.material_id-1].ambient;
-                    Vec3f diffuseCoeff = scene.materials[sphere.material_id-1].diffuse;
-                    Vec3f specularCoeff = scene.materials[sphere.material_id-1].specular;
-                    float phongExponent = scene.materials[sphere.material_id-1].phong_exponent;
+                    Material material = scene.materials[sphere.material_id-1];
+                    Vec3f ambientCoeff = material.ambient;
+                    Vec3f diffuseCoeff = material.diffuse;
+                    Vec3f specularCoeff = material.specular;
+                    Vec3f mirror = material.mirror;
+                    float phongExponent = material.phong_exponent;
+
+                    Vec3f normal = computeSphereNormal(hitPoint.point,
+                                                       scene.vertex_data[sphere.center_vertex_id-1], // it is starting from 1
+                                                       sphere.radius);
                     pixelColor = computeAmbient(ambientCoeff,ambientLight);
                     for(const auto &light : point_lights)
                     {
-                        Vec3f normal = computeSphereNormal(hitPoint.point,
-                                                           scene.vertex_data[sphere.center_vertex_id-1], // it is starting from 1
-                                                           sphere.radius);
+
                         bool isShadow = checkShadow(light, hitPoint.point, scene, normal);
                         if(!isShadow)
                         {
@@ -155,18 +187,31 @@ namespace computeColor
                         }
 
                     }
+                    if(maxRecursion>0 && isReflective(scene.materials[sphere.material_id-1]))
+                    {
+                        Ray reflectionRay;
+                        reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
+                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,maxRecursion--);
+                        pixelColor.x += reflectedColor.x + mirror.x;
+                        pixelColor.y += reflectedColor.y + mirror.y;
+                        pixelColor.z += reflectedColor.z + mirror.z;
+                    }
                     break;
                 }
                 case 2: // triangle
                 {
                     Triangle triangle = scene.triangles[objectID];
-                    Vec3f ambientCoeff = scene.materials[triangle.material_id-1].ambient;
-                    Vec3f diffuseCoeff = scene.materials[triangle.material_id-1].diffuse;
-                    Vec3f specularCoeff = scene.materials[triangle.material_id-1].specular;
-                    float phongExponent = scene.materials[triangle.material_id-1].phong_exponent;
+                    Material material  = scene.materials[triangle.material_id-1];
+                    Vec3f ambientCoeff = material.ambient;
+                    Vec3f diffuseCoeff = material.diffuse;
+                    Vec3f specularCoeff = material.specular;
+                    float phongExponent = material.phong_exponent;
+                    Vec3f mirror = material.mirror;
                     pixelColor = computeAmbient(ambientCoeff,ambientLight);
+                    std::cout <<"trianle outlight" <<std::endl;
                     for(const auto &light : point_lights)
                     {
+                        std::cout <<"triangle insidelight" <<std::endl;
                         Vec3f normal = computeTriangleNormal(scene.vertex_data[triangle.indices.v0_id-1],
                                                              scene.vertex_data[triangle.indices.v1_id-1], // it is starting from 1
                                                              scene.vertex_data[triangle.indices.v2_id-1]);
@@ -179,6 +224,15 @@ namespace computeColor
                             pixelColor.y = pixelColor.y + diffuse.y + specular.y;
                             pixelColor.z = pixelColor.z + diffuse.z + specular.z;
                         }
+                        if(maxRecursion>0 && isReflective(scene.materials[triangle.material_id-1]))
+                        {
+                            Ray reflectionRay;
+                            reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
+                            Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,maxRecursion--);
+                            pixelColor.x += reflectedColor.x + mirror.x;
+                            pixelColor.y += reflectedColor.y + mirror.y;
+                            pixelColor.z += reflectedColor.z + mirror.z;
+                        }
 
                     }
                     break;
@@ -186,15 +240,19 @@ namespace computeColor
                 case 3: // mesh
                 {
                     Mesh mesh = scene.meshes[objectID];
-                    Vec3f ambientCoeff = scene.materials[mesh.material_id-1].ambient;
-                    Vec3f diffuseCoeff = scene.materials[mesh.material_id-1].diffuse;
-                    Vec3f specularCoeff = scene.materials[mesh.material_id-1].specular;
-                    float phongExponent = scene.materials[mesh.material_id-1].phong_exponent;
+                    Material material = scene.materials[mesh.material_id-1];
+                    Vec3f ambientCoeff = material.ambient;
+                    Vec3f diffuseCoeff = material.diffuse;
+                    Vec3f specularCoeff = material.specular;
+                    float phongExponent = material.phong_exponent;
+                    Vec3f mirror = material.mirror;
                     pixelColor = computeAmbient(ambientCoeff,ambientLight);
+                    std::cout <<"mesh outlight" <<std::endl;
                     for(const auto &light : point_lights)
                     {
                         for(const auto &mesh : mesh.faces)
                         {
+                            std::cout <<"mesh" <<std::endl;
                             Vec3f normal = computeTriangleNormal(scene.vertex_data[mesh.v0_id-1],
                                                                  scene.vertex_data[mesh.v1_id-1], // it is starting from 1
                                                                  scene.vertex_data[mesh.v2_id-1]);
@@ -207,7 +265,18 @@ namespace computeColor
                                 pixelColor.y = pixelColor.y + diffuse.y + specular.y;
                                 pixelColor.z = pixelColor.z + diffuse.z + specular.z;
                             }
+                            if(maxRecursion>0 && isReflective(material))
+                            {
+                                Ray reflectionRay;
+                                reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
+                                Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,maxRecursion--);
+                                pixelColor.x += reflectedColor.x + mirror.x;
+                                pixelColor.y += reflectedColor.y + mirror.y;
+                                pixelColor.z += reflectedColor.z + mirror.z;
+                            }
                         }
+
+
                     }
                     break;
                 }
