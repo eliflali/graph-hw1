@@ -13,7 +13,7 @@ using namespace std;
 
 namespace intersectCalculator
 {
-    bool closestHit(Ray ray, HitPoint &hitFound , const Scene &scene){
+    bool closestHit(Ray ray, HitPoint &hitFound , const Scene &scene, int ignoreObjectId){
         int sphereCount = scene.spheres.size() , meshCount = scene.meshes.size() , triangleCount = scene.triangles.size();
         bool isHit = false;
         float firstHit = 3.40282E38;
@@ -60,7 +60,11 @@ namespace intersectCalculator
                     Vec3f intersectionPoint = addVectors(addVectors(multiplyVector(vertex0, alpha),
                                                                     multiplyVector(vertex1, beta)),
                                                                     multiplyVector(vertex2, gamma)); //P = alpha*v0 + beta*v1 + gamma*v2
-                    currentHit = {i,2,0,hitTime, intersectionPoint};
+                    currentHit.objectID = i;
+                    currentHit.objectType = 2;
+                    currentHit.faceID = 0;
+                    currentHit.time = hitTime;
+                    currentHit.point = intersectionPoint;
                     isHit = true;
                 }
             }
@@ -86,11 +90,19 @@ namespace intersectCalculator
                         Vec3f intersectionPoint = addVectors(addVectors(multiplyVector(vertex0, alpha),
                                                                         multiplyVector(vertex1, beta)),
                                                                         multiplyVector(vertex2, gamma)); //P = alpha*v0 + beta*v1 + gamma*v2
-                        currentHit = {i,3,j,hitTime, intersectionPoint};
+                        currentHit.objectID = i;
+                        currentHit.objectType = 3;
+                        currentHit.faceID = j;
+                        currentHit.time = hitTime;
+                        currentHit.point = intersectionPoint;
                         isHit = true;
                     }
                 }
             }
+        }
+        if(currentHit.objectID == ignoreObjectId)
+        {
+            return false;
         }
         hitFound = currentHit;
         return isHit;
