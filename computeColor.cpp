@@ -172,7 +172,7 @@ z:
         HitPoint hitPoint;
         std::vector<PointLight> point_lights = scene.point_lights;
         bool isHit = closestHit(ray, hitPoint, scene, ignoreObjectID);
-        if(isHit && hitPoint.objectID != ignoreObjectID)
+        if(isHit && !(hitPoint.objectID == ignoreObjectID && hitPoint.objectType == ignoreObjectType))
         {
             int objectType = hitPoint.objectType;
             int objectID = hitPoint.objectID;
