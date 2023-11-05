@@ -166,7 +166,7 @@ z:
         return reflectionRay;
     }
 
-    Vec3f computePixelColor(Scene scene, Camera camera, Ray ray, int maxRecursion, int ignoreObjectID)
+    Vec3f computePixelColor(Scene scene, Camera camera, Ray ray, int maxRecursion, int ignoreObjectID, int ignoreObjectType)
     {
         Vec3f pixelColor;
         HitPoint hitPoint;
@@ -211,7 +211,7 @@ z:
                     {
                         Ray reflectionRay;
                         reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
-                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID);
+                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID, objectType);
                         pixelColor.x += reflectedColor.x * mirror.x;
                         pixelColor.y += reflectedColor.y * mirror.y;
                         pixelColor.z += reflectedColor.z * mirror.z;
@@ -249,7 +249,7 @@ z:
                     {
                         Ray reflectionRay;
                         reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
-                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID);
+                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID, objectType);
                         pixelColor.x += reflectedColor.x * mirror.x;
                         pixelColor.y += reflectedColor.y * mirror.y;
                         pixelColor.z += reflectedColor.z * mirror.z;
@@ -288,14 +288,14 @@ z:
                     {
                         Ray reflectionRay;
                         reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
-                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID);
+                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID,objectType);
                         pixelColor.x += reflectedColor.x * mirror.x;
                         pixelColor.y += reflectedColor.y * mirror.y;
                         pixelColor.z += reflectedColor.z * mirror.z;
                     }
-                    if(pixelColor.x == 0 && pixelColor.y == 0 && pixelColor.z ==0){
+                    /*if(pixelColor.x == 0 && pixelColor.y == 0 && pixelColor.z ==0){
                         pixelColor = {35,145,89};
-                    }
+                    }*/
                     break;
                 }
                 default:
@@ -309,6 +309,9 @@ z:
             pixelColor.x = scene.background_color.x;
             pixelColor.y = scene.background_color.y;
             pixelColor.z = scene.background_color.z;
+            /*if(pixelColor.x == 0 && pixelColor.y == 0 && pixelColor.z ==0){
+                pixelColor = {35,145,89};
+            }*/
         }
         
         return pixelColor;

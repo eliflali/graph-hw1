@@ -22,7 +22,7 @@ namespace intersectCalculator
         HitPoint clone = {toDup.objectID,toDup.objectType,toDup.faceID,toDup.time,toDup.point};
         return clone;
     }
-    bool closestHit(Ray ray, HitPoint &hitFound , const Scene &scene, int ignoreObjectId){
+    bool closestHit(Ray ray, HitPoint &hitFound , const Scene &scene, int ignoreObjectId, int ignoreObjectType){
         int sphereCount = scene.spheres.size() , meshCount = scene.meshes.size() , triangleCount = scene.triangles.size();
         bool isHit = false;
         float firstHit = 3.40282E38;
@@ -79,7 +79,7 @@ namespace intersectCalculator
                 }
             }
         }
-        vector<HitPoint> totalHits = {};
+        vector<HitPoint> totalHits;
         for(int i = 0; i < meshCount; i++){
             //mesh case
             //for debug lets see if we hit all meshes 
@@ -116,7 +116,7 @@ namespace intersectCalculator
             }
             //totalHits.push_back(duplicate(currentHit));
         }
-        if(currentHit.objectID == ignoreObjectId)
+        if(currentHit.objectID == ignoreObjectId && currentHit.objectType == ignoreObjectType)
         {
             return false;
         }

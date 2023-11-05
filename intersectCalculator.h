@@ -19,7 +19,7 @@ namespace intersectCalculator
         Vec3f point; //intersection point (optional)
     }hitpoint;
     
-    bool closestHit(Ray ray, HitPoint &hitsFound , const Scene &scene, int ignoreObjectId = -1);
+    bool closestHit(Ray ray, HitPoint &hitsFound , const Scene &scene, int ignoreObjectId = -1, int ignoreObjectType = -1);
     
 }
 
