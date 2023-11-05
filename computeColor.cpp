@@ -3,6 +3,7 @@
 #include "mathFunctions.h"
 #include "intersectCalculator.h"
 #include <iostream>
+#include <math.h>
 
 using namespace parser;
 using namespace mathFunctions;
@@ -116,7 +117,7 @@ namespace computeColor
         HitPoint hitPoint;
         if(closestHit(shadowRay,hitPoint, scene))
         {
-            if(hitPoint.time < length) // t<|wi|
+            if(hitPoint.time  < length) // t<|wi|
             {
                 isShadow = true;
             }
@@ -124,6 +125,24 @@ namespace computeColor
 
         return isShadow;
     }
+
+    /*
+    
+x:
+-8.05607224
+y:
+-4.52776432
+z:
+-2.87845039
+
+
+x:
+-8.03443527
+y:
+-4.50485754
+z:
+-2.86534524
+*/
 
     bool isReflective(Material material)
     {
@@ -274,6 +293,9 @@ namespace computeColor
                         pixelColor.y += reflectedColor.y * mirror.y;
                         pixelColor.z += reflectedColor.z * mirror.z;
                     }
+                    if(pixelColor.x == 0 && pixelColor.y == 0 && pixelColor.z ==0){
+                        pixelColor = {35,145,89};
+                    }
                     break;
                 }
                 default:
@@ -288,6 +310,7 @@ namespace computeColor
             pixelColor.y = scene.background_color.y;
             pixelColor.z = scene.background_color.z;
         }
+        
         return pixelColor;
     }
 }

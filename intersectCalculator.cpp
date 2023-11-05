@@ -13,6 +13,15 @@ using namespace std;
 
 namespace intersectCalculator
 {
+    /*int objectID;
+        int objectType; // / can be enumerated right now 0-> null 1->sphere 2-> triangle 3-> mesh
+        int faceID; //had to for meshes
+        float time;
+        Vec3f point; */
+    HitPoint duplicate(HitPoint toDup){
+        HitPoint clone = {toDup.objectID,toDup.objectType,toDup.faceID,toDup.time,toDup.point};
+        return clone;
+    }
     bool closestHit(Ray ray, HitPoint &hitFound , const Scene &scene, int ignoreObjectId){
         int sphereCount = scene.spheres.size() , meshCount = scene.meshes.size() , triangleCount = scene.triangles.size();
         bool isHit = false;
@@ -55,7 +64,8 @@ namespace intersectCalculator
             float time = determinant3(column0, column1, columnBeta) / alpha;
 
             if((beta + gamma) <= 1 && beta >= 0 && gamma >= 0 ){
-                if(time > 0 &&  time < hitTime){
+                if(time > 0 &&  time < firstHit){
+                    firstHit = time;
                     float alpha = 1 - beta - gamma;
                     Vec3f intersectionPoint = addVectors(addVectors(multiplyVector(vertex0, alpha),
                                                                     multiplyVector(vertex1, beta)),
@@ -63,14 +73,17 @@ namespace intersectCalculator
                     currentHit.objectID = i;
                     currentHit.objectType = 2;
                     currentHit.faceID = 0;
-                    currentHit.time = hitTime;
+                    currentHit.time = time;
                     currentHit.point = intersectionPoint;
                     isHit = true;
                 }
             }
         }
+        vector<HitPoint> totalHits = {};
         for(int i = 0; i < meshCount; i++){
             //mesh case
+            //for debug lets see if we hit all meshes 
+            
             int faceCount = scene.meshes[i].faces.size();
             for(int j =0 ; j < faceCount;j++){
                 //for each face
@@ -85,7 +98,8 @@ namespace intersectCalculator
                 float time = determinant3(column0, column1, columnBeta) / alpha;
 
                 if((beta + gamma) <= 1 && beta >= 0 && gamma >= 0 ){
-                    if(time > 0 &&  time < hitTime){
+                    if(time > 0 &&  time < firstHit){
+                        firstHit = time;
                         float alpha = 1 - beta - gamma;
                         Vec3f intersectionPoint = addVectors(addVectors(multiplyVector(vertex0, alpha),
                                                                         multiplyVector(vertex1, beta)),
@@ -93,12 +107,14 @@ namespace intersectCalculator
                         currentHit.objectID = i;
                         currentHit.objectType = 3;
                         currentHit.faceID = j;
-                        currentHit.time = hitTime;
+                        currentHit.time = time;
                         currentHit.point = intersectionPoint;
                         isHit = true;
                     }
+                    
                 }
             }
+            //totalHits.push_back(duplicate(currentHit));
         }
         if(currentHit.objectID == ignoreObjectId)
         {

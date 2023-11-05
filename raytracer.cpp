@@ -4,7 +4,7 @@
 #include "rayGenerator.h"
 #include <algorithm>
 #include "computeColor.h"
-
+#include <math.h>
 using namespace rayGenerator;
 using namespace parser;
 using namespace computeColor;
