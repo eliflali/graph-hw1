@@ -147,6 +147,13 @@ namespace computeColor
         reflectionRay.direction = normalize(subtractVectors(multiplied, wo));
         reflectionRay.origin = addVectors(pointOnSurface, multiplyVector(n, shadowEpsilon));
         return reflectionRay;
+        /*Vec3f wo= multiplyVector(ray.origin,-1);
+        Ray reflectionRay;
+        float dotpNWo = dotProduct(wo,n);
+        Vec3f multiplied = multiplyVector(n, 2*dotpNWo); //2*n(dotproduct(n.w_o)) //temp
+        reflectionRay.direction = normalize(addVectors(multiplied, ray.direction));
+        reflectionRay.origin = addVectors(pointOnSurface, multiplyVector(reflectionRay.direction, shadowEpsilon));
+        return reflectionRay;*/
     }
 
     Vec3f computePixelColor(Scene scene, Camera camera, Ray ray, int maxRecursion, int ignoreObjectID,int ignoreObjectType)
@@ -253,22 +260,15 @@ namespace computeColor
                     Vec3f normal = computeTriangleNormal(scene.vertex_data[face.v0_id-1],
                                                          scene.vertex_data[face.v1_id-1], // it is starting from 1
                                                          scene.vertex_data[face.v2_id-1]);
-                    std::cout<<"after ambient"<<std::endl;
-                    std::cout<<pixelColor.x<<", " << pixelColor.y<<", "<<pixelColor.z<<std::endl;
                     for(const auto &light : point_lights)
                     {
-                        std::cout<<"---------POINT LIGHT---------"<<std::endl;
                         bool isShadow = checkShadow(light, hitPoint.point, scene, normal);
                         if(!isShadow)
                         {
                             Vec3f diffuse = computeDiffuse(diffuseCoeff,light,normal,hitPoint.point);
                             Vec3f specular = computeSpecular(specularCoeff,phongExponent,light,ray,normal,hitPoint.point);
                             pixelColor = addVectors(pixelColor, diffuse);
-                            std::cout<<"after diffuse"<<std::endl;
-                            std::cout<<pixelColor.x<<", " << pixelColor.y<<", "<<pixelColor.z<<std::endl;
                             pixelColor = addVectors(pixelColor, specular);
-                            std::cout<<"after specular"<<std::endl;
-                            std::cout<<pixelColor.x<<", " << pixelColor.y<<", "<<pixelColor.z<<std::endl;
                             /*pixelColor.x = pixelColor.x + diffuse.x + specular.x;
                             pixelColor.y = pixelColor.y + diffuse.y + specular.y;
                             pixelColor.z = pixelColor.z + diffuse.z + specular.z;*/
@@ -277,13 +277,9 @@ namespace computeColor
                     }
                     if(maxRecursion>0 && isReflective(material))
                     {
-                        std::cout<<"---------Reflective---------"<<std::endl;
                         Ray reflectionRay;
                         reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
                         maxRecursion -= 1;
-                        std::cout<<"after mirror"<<std::endl;
-                        std::cout<<"maxRecursion: "<< maxRecursion <<std::endl;
-                        std::cout<<pixelColor.x<<", " << pixelColor.y<<", "<<pixelColor.z<<std::endl;
                         Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,maxRecursion, objectID, objectType);
                         pixelColor.x += reflectedColor.x * mirror.x;
                         pixelColor.y += reflectedColor.y * mirror.y;
