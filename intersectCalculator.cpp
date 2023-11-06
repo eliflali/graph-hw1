@@ -18,10 +18,6 @@ namespace intersectCalculator
         int faceID; //had to for meshes
         float time;
         Vec3f point; */
-    HitPoint duplicate(HitPoint toDup){
-        HitPoint clone = {toDup.objectID,toDup.objectType,toDup.faceID,toDup.time,toDup.point};
-        return clone;
-    }
     bool closestHit(Ray ray, HitPoint &hitFound , const Scene &scene, int ignoreObjectId, int ignoreObjectType){
         int sphereCount = scene.spheres.size() , meshCount = scene.meshes.size() , triangleCount = scene.triangles.size();
         bool isHit = false;
@@ -114,7 +110,6 @@ namespace intersectCalculator
                     
                 }
             }
-            //totalHits.push_back(duplicate(currentHit));
         }
         if(currentHit.objectID == ignoreObjectId && currentHit.objectType == ignoreObjectType)
         {

@@ -12,7 +12,7 @@ using namespace computeColor;
 int max_recursion_depth;
 std::vector<Camera> cameras;
 
-float clamp(float value)
+float clamp(float value, float epsilon)
 {
     float bounded = value > 255 ? 255 : round(value);
     return bounded;
@@ -36,20 +36,26 @@ int main(int argc, char* argv[])
 
         int pixel = 0;
         //for each pixel, we must calculate pixel color
-        for(int ny= 0; ny<height; ny++)
+        /*for(int ny= 0; ny<height; ny++)
         {
             for(int nx = 0; nx<width; nx++ )
             {
                 Ray ray = rayGenerator::generateRay(camera, ny, nx);
                 ray.depth = 0;
                 Vec3f color = computePixelColor(scene, camera, ray, max_recursion_depth);
-                image[pixel] = clamp(color.x);
-                image[pixel+1] = clamp(color.y);
-                image[pixel+2] = clamp(color.z);
+                image[pixel] = clamp(color.x, scene.shadow_ray_epsilon);
+                image[pixel+1] = clamp(color.y, scene.shadow_ray_epsilon);
+                image[pixel+2] = clamp(color.z, scene.shadow_ray_epsilon);
                 pixel += 3;
             }
         }
 
-        write_ppm(camera.image_name.c_str(), image, width, height);
+        write_ppm(camera.image_name.c_str(), image, width, height);*/
+
+        Ray ray = rayGenerator::generateRay(camera, 0, 0);
+        ray.depth = 0;
+        Vec3f color = computePixelColor(scene, camera, ray, max_recursion_depth);
+        std::cout<<"in the end"<<std::endl;
+        std::cout<<color.x<<", " << color.y<<", "<<color.z<<std::endl;
     }
 }

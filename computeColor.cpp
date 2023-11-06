@@ -94,11 +94,12 @@ namespace computeColor
         Vec3f diffuse;
         Vec3f irradiance = computeIrradiance(light.intensity, pointOnSurface, light.position);
         Vec3f wi = computeWi(pointOnSurface, light.position);
-        float costheta = std::max(0.0f, dotProduct(normal, wi)); // cos(theta)' = max(0, w_i.n)
-
+        float costheta = std::max(0.0f, dotProduct(wi, normal)); // cos(theta)' = max(0, w_i.n)
         diffuse.x = diffuseCoeff.x * costheta * irradiance.x;
         diffuse.y = diffuseCoeff.y * costheta * irradiance.y;
         diffuse.z = diffuseCoeff.z * costheta * irradiance.z;
+        //std::cout<<"costheta: " << costheta <<std::endl;
+        //std::cout<<"irradiance: " << irradiance.x<<", " << irradiance.y<<", "<<irradiance.z <<std::endl;
 
         return diffuse;
     }
@@ -126,31 +127,13 @@ namespace computeColor
         return isShadow;
     }
 
-    /*
-    
-x:
--8.05607224
-y:
--4.52776432
-z:
--2.87845039
-
-
-x:
--8.03443527
-y:
--4.50485754
-z:
--2.86534524
-*/
-
     bool isReflective(Material material)
     {
         bool reflective;
 
         reflective = material.is_mirror ? true : false;
 
-        return reflective;
+        return material.mirror.x || material.mirror.y || material.mirror.z;
     }
 
     Ray computeReflectionRay(const Ray &ray, const Vec3f &n, const Vec3f &pointOnSurface, const float &shadowEpsilon)
@@ -162,7 +145,7 @@ z:
         float dotpNWo = dotProduct(wo,n);
         Vec3f multiplied = multiplyVector(n, 2*dotpNWo);
         reflectionRay.direction = normalize(subtractVectors(multiplied, wo));
-        reflectionRay.origin = addVectors(pointOnSurface, multiplyVector(n, 2*shadowEpsilon));
+        reflectionRay.origin = addVectors(pointOnSurface, multiplyVector(n, shadowEpsilon));
         return reflectionRay;
     }
 
@@ -172,7 +155,7 @@ z:
         HitPoint hitPoint;
         std::vector<PointLight> point_lights = scene.point_lights;
         bool isHit = closestHit(ray, hitPoint, scene, ignoreObjectID,ignoreObjectType);
-        if(isHit)// hitPoint.objectID != ignoreObjectID)
+        if(isHit)
         {
             int objectType = hitPoint.objectType;
             int objectID = hitPoint.objectID;
@@ -211,7 +194,7 @@ z:
                     {
                         Ray reflectionRay;
                         reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
-                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID);
+                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID, objectType);
                         pixelColor.x += reflectedColor.x * mirror.x;
                         pixelColor.y += reflectedColor.y * mirror.y;
                         pixelColor.z += reflectedColor.z * mirror.z;
@@ -235,7 +218,7 @@ z:
                     for(const auto &light : point_lights)
                     {
 
-                        bool isShadow = false;//checkShadow(light, hitPoint.point, scene, normal);
+                        bool isShadow = checkShadow(light, hitPoint.point, scene, normal);
                         if(!isShadow)
                         {
                             Vec3f diffuse = computeDiffuse(diffuseCoeff,light,normal,hitPoint.point);
@@ -249,7 +232,7 @@ z:
                     {
                         Ray reflectionRay;
                         reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
-                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID);
+                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID, objectType);
                         pixelColor.x += reflectedColor.x * mirror.x;
                         pixelColor.y += reflectedColor.y * mirror.y;
                         pixelColor.z += reflectedColor.z * mirror.z;
@@ -270,32 +253,42 @@ z:
                     Vec3f normal = computeTriangleNormal(scene.vertex_data[face.v0_id-1],
                                                          scene.vertex_data[face.v1_id-1], // it is starting from 1
                                                          scene.vertex_data[face.v2_id-1]);
-
+                    std::cout<<"after ambient"<<std::endl;
+                    std::cout<<pixelColor.x<<", " << pixelColor.y<<", "<<pixelColor.z<<std::endl;
                     for(const auto &light : point_lights)
                     {
+                        std::cout<<"---------POINT LIGHT---------"<<std::endl;
                         bool isShadow = checkShadow(light, hitPoint.point, scene, normal);
                         if(!isShadow)
                         {
                             Vec3f diffuse = computeDiffuse(diffuseCoeff,light,normal,hitPoint.point);
                             Vec3f specular = computeSpecular(specularCoeff,phongExponent,light,ray,normal,hitPoint.point);
-                            pixelColor.x = pixelColor.x + diffuse.x + specular.x;
+                            pixelColor = addVectors(pixelColor, diffuse);
+                            std::cout<<"after diffuse"<<std::endl;
+                            std::cout<<pixelColor.x<<", " << pixelColor.y<<", "<<pixelColor.z<<std::endl;
+                            pixelColor = addVectors(pixelColor, specular);
+                            std::cout<<"after specular"<<std::endl;
+                            std::cout<<pixelColor.x<<", " << pixelColor.y<<", "<<pixelColor.z<<std::endl;
+                            /*pixelColor.x = pixelColor.x + diffuse.x + specular.x;
                             pixelColor.y = pixelColor.y + diffuse.y + specular.y;
-                            pixelColor.z = pixelColor.z + diffuse.z + specular.z;
+                            pixelColor.z = pixelColor.z + diffuse.z + specular.z;*/
                         }
 
                     }
                     if(maxRecursion>0 && isReflective(material))
                     {
+                        std::cout<<"---------Reflective---------"<<std::endl;
                         Ray reflectionRay;
                         reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
-                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID);
+                        maxRecursion -= 1;
+                        std::cout<<"after mirror"<<std::endl;
+                        std::cout<<"maxRecursion: "<< maxRecursion <<std::endl;
+                        std::cout<<pixelColor.x<<", " << pixelColor.y<<", "<<pixelColor.z<<std::endl;
+                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,maxRecursion, objectID, objectType);
                         pixelColor.x += reflectedColor.x * mirror.x;
                         pixelColor.y += reflectedColor.y * mirror.y;
                         pixelColor.z += reflectedColor.z * mirror.z;
                     }
-                    /*if(pixelColor.x == 0 && pixelColor.y == 0 && pixelColor.z ==0){
-                        pixelColor = {35,145,89};
-                    }*/ 
                     break;
                 }
                 default:
