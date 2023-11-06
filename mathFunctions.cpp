@@ -27,20 +27,16 @@ namespace mathFunctions
     }
 
     float determinant3(const Vec3f &vec1, const Vec3f &vec2, const Vec3f &vec3)
-    {
-        /*Vec3f determinant;
-        determinant.x = vec1.y*vec1.z - vec1.z*vec2.y;
-        determinant.y = vec1.z*vec2.x - vec1.x*vec2.z;
-        determinant.z = vec1.x*vec2.y - vec1.y*vec2.x;
-        return determinant;*/
-        // -x2 y1 z + x1 y2 z + x2 y z1 - x y2 z1 - x1 y z2 + x y1 z2
-        return (-(vec3.x) * vec2.y * vec1.z) + (vec2.x * vec3.y * vec1.z ) + (vec3.x * vec1.y * vec2.z ) - (vec1.x * vec3.y * vec2.z ) - (vec2.x * vec1.y * vec3.z) + (vec1.x * vec2.y* vec3.z);
+    {   
+        return vec1.x * (vec2.y * vec3.z - vec2.z * vec3.y) -
+           vec1.y * (vec2.x * vec3.z - vec2.z * vec3.x) +
+           vec1.z * (vec2.x * vec3.y - vec2.y * vec3.x);
     }
 
     Vec3f crossProduct(const Vec3f &vec1, const Vec3f &vec2)
     {
         Vec3f product;
-        product.x = vec1.y*vec1.z - vec1.z*vec2.y;
+        product.x = vec1.y*vec2.z - vec1.z*vec2.y;
         product.y = vec1.z*vec2.x - vec1.x*vec2.z;
         product.z = vec1.x*vec2.y - vec1.y*vec2.x;
         return product;

@@ -115,7 +115,7 @@ namespace computeColor
         shadowRay.origin = addVectors(pointOnSurface, multiplyVector(normal, epsilon)); // x + n*epsilon
 
         HitPoint hitPoint;
-        if(closestHit(shadowRay,hitPoint, scene))
+        if(closestHit(shadowRay,hitPoint, scene,hitPoint.objectType))
         {
             if(hitPoint.time  < length) // t<|wi|
             {
@@ -166,13 +166,13 @@ z:
         return reflectionRay;
     }
 
-    Vec3f computePixelColor(Scene scene, Camera camera, Ray ray, int maxRecursion, int ignoreObjectID, int ignoreObjectType)
+    Vec3f computePixelColor(Scene scene, Camera camera, Ray ray, int maxRecursion, int ignoreObjectID,int ignoreObjectType)
     {
         Vec3f pixelColor;
         HitPoint hitPoint;
         std::vector<PointLight> point_lights = scene.point_lights;
-        bool isHit = closestHit(ray, hitPoint, scene, ignoreObjectID);
-        if(isHit && !(hitPoint.objectID == ignoreObjectID && hitPoint.objectType == ignoreObjectType))
+        bool isHit = closestHit(ray, hitPoint, scene, ignoreObjectID,ignoreObjectType);
+        if(isHit)// hitPoint.objectID != ignoreObjectID)
         {
             int objectType = hitPoint.objectType;
             int objectID = hitPoint.objectID;
@@ -211,7 +211,7 @@ z:
                     {
                         Ray reflectionRay;
                         reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
-                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID, objectType);
+                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID);
                         pixelColor.x += reflectedColor.x * mirror.x;
                         pixelColor.y += reflectedColor.y * mirror.y;
                         pixelColor.z += reflectedColor.z * mirror.z;
@@ -235,7 +235,7 @@ z:
                     for(const auto &light : point_lights)
                     {
 
-                        bool isShadow = checkShadow(light, hitPoint.point, scene, normal);
+                        bool isShadow = false;//checkShadow(light, hitPoint.point, scene, normal);
                         if(!isShadow)
                         {
                             Vec3f diffuse = computeDiffuse(diffuseCoeff,light,normal,hitPoint.point);
@@ -249,7 +249,7 @@ z:
                     {
                         Ray reflectionRay;
                         reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
-                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID, objectType);
+                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID);
                         pixelColor.x += reflectedColor.x * mirror.x;
                         pixelColor.y += reflectedColor.y * mirror.y;
                         pixelColor.z += reflectedColor.z * mirror.z;
@@ -288,14 +288,14 @@ z:
                     {
                         Ray reflectionRay;
                         reflectionRay = computeReflectionRay(ray, normal, hitPoint.point, scene.shadow_ray_epsilon);
-                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID,objectType);
+                        Vec3f reflectedColor = computePixelColor(scene, camera,reflectionRay ,--maxRecursion, objectID);
                         pixelColor.x += reflectedColor.x * mirror.x;
                         pixelColor.y += reflectedColor.y * mirror.y;
                         pixelColor.z += reflectedColor.z * mirror.z;
                     }
                     /*if(pixelColor.x == 0 && pixelColor.y == 0 && pixelColor.z ==0){
                         pixelColor = {35,145,89};
-                    }*/
+                    }*/ 
                     break;
                 }
                 default:
@@ -309,9 +309,6 @@ z:
             pixelColor.x = scene.background_color.x;
             pixelColor.y = scene.background_color.y;
             pixelColor.z = scene.background_color.z;
-            /*if(pixelColor.x == 0 && pixelColor.y == 0 && pixelColor.z ==0){
-                pixelColor = {35,145,89};
-            }*/
         }
         
         return pixelColor;
